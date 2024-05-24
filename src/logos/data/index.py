@@ -53,6 +53,11 @@ def index_documents(data: list[TextChunk]) -> None:
     """
     Index a list of documents.
     """
+
+    # Replace the text with the representation prepared for embedding
+    for doc in data:
+        doc.text = doc.embed_text
+
     embeddings = get_or_create_index()
     embeddings.upsert(
         tqdm(
