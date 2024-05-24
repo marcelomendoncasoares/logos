@@ -12,6 +12,7 @@ import typer
 from doc2docx import convert as convert_doc2docx
 from docx2txt import process as convert_docx2txt
 
+
 # Path to place final .txt files.
 DESTINATION_ROOT_PATH = Path("data/prepared/")
 
@@ -45,7 +46,7 @@ def clean() -> None:
     rules are explained in comments above each regex specification.
     """
 
-    CLEANUP_REGEX_SUBSTITUTIONS = [
+    CLEANUP_REGEX_SUBSTITUTIONS = [  # noqa: N806
         # Remove non-breaking spaces and tabs.
         (r"[\u00A0\t]", " "),
         # Remove empty parentheses and brackets.

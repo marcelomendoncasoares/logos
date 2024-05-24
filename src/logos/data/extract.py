@@ -3,6 +3,7 @@ Document extraction process.
 
 """
 
+from pathlib import Path
 from typing import Any
 from uuid import NAMESPACE_DNS, uuid5
 
@@ -22,8 +23,8 @@ from logos.entities.text import TextChunk
 
 
 def load_documents(
-    input_dir: str | None = None,
-    input_files: list[str] | None = None,
+    input_dir: str | Path | None = None,
+    input_files: list[str] | list[Path] | None = None,
 ) -> list[Document]:
     """
     Load input documents or recursively from a directory.
