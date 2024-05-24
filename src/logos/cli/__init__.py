@@ -83,16 +83,17 @@ def delete(*, yes: bool = False) -> None:
 
 
 @app.command()
-def search(query: str, limit: int = 10) -> None:
+def search(query: str, min_score: float = 0.0, limit: Optional[int] = None) -> None:
     """
     Search for text in the index.
 
     Args:
         query: Text to search for.
+        min_score: Minimum score to consider.
         limit: Maximum number of results to return.
     """
     typer.echo(f"\nResults for query: '{query}'\n")
-    for result in search_index(query, limit=limit):
+    for result in search_index(query, min_score=min_score, limit=limit):
         typer.echo("------------------------")
         typer.echo(f"Score: {result.score:.4f}\n{result.text.embed_text}\n")
 

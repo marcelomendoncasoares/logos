@@ -86,12 +86,17 @@ def _convert_result(data: dict, cls: Type[ReturnType]) -> ReturnType:
     return cls(**data)
 
 
-def search_index(similarity_query: str, limit: int | None = None) -> list[QueryResult]:
+def search_index(
+    similarity_query: str,
+    min_score: float = 0.0,
+    limit: int | None = None,
+) -> list[QueryResult]:
     """
     Search the index with a query.
 
     Args:
         similarity_query: Similarity query to search for.
+        min_score: Minimum score to consider.
         limit: Maximum number of results to return.
 
     Returns:
@@ -101,10 +106,10 @@ def search_index(similarity_query: str, limit: int | None = None) -> list[QueryR
         query="""
             select id, data, score
             from txtai
-            where similar(:query)
+            where similar(:query) and score > :min_score
         """,
         limit=limit,
-        parameters={"query": similarity_query},
+        parameters={"query": similarity_query, "min_score": min_score},
     )
     return [_convert_result(data, QueryResult) for data in results]
 
