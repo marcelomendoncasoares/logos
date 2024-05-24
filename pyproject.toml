@@ -56,7 +56,13 @@ ignore = [
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"scripts/**" = ["INP001"]  # File is part of an implicit namespace package
+"!src/**" = ["INP001"]  # File is part of an implicit namespace package
+"_local_test*" = [
+    "ERA001",   # Found commented-out code
+    "PD901",    # Avoid using the generic variable name `df` for DataFrames
+    "PLR0913",  # Too many arguments in function definition (6 > 5)
+    "T201",     # `print` found
+]
 
 [tool.ruff.lint.isort]
 case-sensitive = true
