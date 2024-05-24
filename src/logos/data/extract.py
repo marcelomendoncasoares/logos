@@ -4,18 +4,11 @@ Document extraction process.
 """
 
 from pathlib import Path
-from typing import Any
 from uuid import NAMESPACE_DNS, uuid5
 
 from llama_index import SimpleDirectoryReader
 from llama_index.node_parser import MarkdownNodeParser, SentenceSplitter
-from llama_index.schema import (
-    BaseNode,
-    Document,
-    MetadataMode,
-    NodeRelationship,
-    TextNode,
-)
+from llama_index.schema import Document, MetadataMode, NodeRelationship, TextNode
 
 from logos.entities.paragraph import ParagraphReference
 from logos.entities.source import Source
@@ -50,31 +43,24 @@ def load_documents(
     return documents
 
 
-class _CustomMarkdownNodeParser(MarkdownNodeParser):
+def _post_process_nodes_hierarchy(nodes: list[TextNode]) -> None:
     """
-    Markdown node parser that removes headers from the text.
-    Will also remove 'NULL' headers.
+    Remove headers from the text, remove 'NULL' headers, transform headers
+    into a list and extract paragraphs.
     """
-
-    def _build_node_from_split(
-        self,
-        text_split: str,
-        node: BaseNode,
-        metadata: dict[str, Any],
-    ) -> TextNode:
+    for node in nodes:
         headers = []
-        for key, header in sorted(metadata.items()):
+        for key, header in sorted(node.metadata.items()):
             if not key.lower().startswith("header"):
                 continue
-            text_split = text_split.replace(header, "").strip("#").strip()
-            current_header = metadata.pop(key)
+            node.text = node.text.replace(header, "").strip("#").strip()
+            current_header = node.metadata.pop(key)
             if current_header != "NULL":
                 headers.append(current_header)
 
         if headers:
-            metadata["headers"] = headers
-        metadata["paragraphs"] = ParagraphReference.extract_all(text_split)
-        return super()._build_node_from_split(text_split, node, metadata)
+            node.metadata["headers"] = headers
+        node.metadata["paragraphs"] = ParagraphReference.extract_all(node.text)
 
 
 def _post_process_nodes_fix_node(nodes: list[TextNode]) -> None:
@@ -107,8 +93,9 @@ def parse_documents_into_nodes(documents: list[Document]) -> list[TextNode]:
     Parse documents into text nodes.
     """
 
-    markdown_parser = _CustomMarkdownNodeParser.from_defaults()
+    markdown_parser = MarkdownNodeParser.from_defaults()
     section_nodes = markdown_parser.get_nodes_from_documents(documents)
+    _post_process_nodes_hierarchy(section_nodes)
 
     sentence_parser = SentenceSplitter.from_defaults(
         chunk_size=192,
