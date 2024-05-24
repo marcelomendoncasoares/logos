@@ -22,7 +22,8 @@ class TextChunk(BaseModel):
     source: Source
     headers: list[str] = []
     paragraphs: list[ParagraphReference]
-    # TODO: Add relations: {previous, next}
+    prev_id: str | None = None
+    next_id: str | None = None
 
     @classmethod
     def from_text_node(cls, node: TextNode) -> Self:
@@ -35,4 +36,6 @@ class TextChunk(BaseModel):
             source=node.metadata["source"],
             headers=node.metadata.get("headers", []),
             paragraphs=node.metadata["paragraphs"],
+            prev_id=node.prev_node.node_id if node.prev_node else None,
+            next_id=node.next_node.node_id if node.next_node else None,
         )
