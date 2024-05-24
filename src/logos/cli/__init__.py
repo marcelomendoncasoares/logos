@@ -24,9 +24,11 @@ app = typer.Typer(no_args_is_help=True)
 @app.command()
 def index(
     paths: list[Path],
+    *,
     include: Optional[list[str]] = None,
     exclude: Optional[list[str]] = None,
     limit: int = 0,
+    reset: bool = False,
 ) -> None:
     """
     Index all files in the provided paths.
@@ -40,6 +42,7 @@ def index(
         include: List of glob pattern to match files to keep (evaluated first).
         exclude: List of glob pattern to match files to exclude.
         limit: Maximum number of nodes to index. If 0, all nodes are indexed.
+        reset: Whether to reset the index before indexing.
     """
     if not paths:
         typer.echo("No paths provided.")
@@ -60,6 +63,8 @@ def index(
     documents = load_documents(input_files=paths)
     nodes = parse_documents_into_nodes(documents)
     text_chunks = parse_nodes_into_text_chunks(nodes)
+    if reset:
+        delete_index()
     index_documents(text_chunks if not limit else text_chunks[:limit])
 
 
