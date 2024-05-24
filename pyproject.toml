@@ -6,18 +6,25 @@ authors = ["Marcelo Soares <marcelo.me.soares@gmail.com>"]
 license = "MIT"
 readme = "README.md"
 
+[tool.poetry.scripts]
+logos = "logos.cli:app"
+
 [tool.poetry.dependencies]
 python = "^3.11"
+accelerate = "^0.25.0"  # To enable PyTorch code to run across distributed configuration
+einops = "^0.7.0"  # Improve tensor operations
 llama-index = "^0.9.15.post2"
-sentence-transformers = "^2.2.2"
-spacy = "^3.7.2"
-weaviate-client = "4.4b1"
+pydantic = "^2.7.1"
+txtai = {extras = ["database", "graph"], version = "^7.1.0"}
 typer = "^0.9.0"
 
 [tool.poetry.group.dev.dependencies]
 doc2docx = "^0.2.4"
 docx2txt = "^0.8"
 ipykernel = "^6.29.4"
+ipywidgets = "^8.1.2"
+matplotlib = "^3.9.0"
+pytest = "^8.2.1"
 ruff = "^0.4.5"
 
 [tool.ruff]
