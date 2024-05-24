@@ -14,7 +14,11 @@ from logos.data.extract import (
     parse_documents_into_nodes,
     parse_nodes_into_text_chunks,
 )
-from logos.data.index import delete_index, get_or_create_index, index_documents
+from logos.data.index import (
+    delete_index,
+    index_documents,
+    search_index,
+)
 
 
 app = typer.Typer(no_args_is_help=True)
@@ -87,11 +91,10 @@ def search(query: str, limit: int = 10) -> None:
         query: Text to search for.
         limit: Maximum number of results to return.
     """
-    embeddings = get_or_create_index()
-    embeddings.search(query, limit=limit)
-    typer.echo(f"------------------------\nResults for query: '{query}'\n")
-    for result in embeddings.search(query, limit=limit):
-        typer.echo(f"{result}\n")
+    typer.echo(f"\nResults for query: '{query}'\n")
+    for result in search_index(query, limit=limit):
+        typer.echo("------------------------")
+        typer.echo(f"Score: {result.score:.4f}\n{result.text.embed_text}\n")
 
 
 if __name__ == "__main__":
