@@ -5,6 +5,7 @@ Indexing functions for the CLI.
 
 import shutil
 
+from functools import lru_cache
 from pathlib import Path
 
 from tqdm import tqdm
@@ -17,6 +18,7 @@ INDEX_DEFAULT_LOCATION = Path.home() / ".logos" / "index"
 """Path to the default location of the index."""
 
 
+@lru_cache
 def get_or_create_index() -> Embeddings:
     """
     Get or create the index.
