@@ -98,12 +98,13 @@ def search_index(similarity_query: str, limit: int | None = None) -> list[QueryR
         List of text chunks.
     """
     results: list[dict] = get_or_create_index().search(
-        query=f"""
+        query="""
             select id, data, score
             from txtai
-            where similar({similarity_query!r})
-        """,  # noqa: S608
+            where similar(:query)
+        """,
         limit=limit,
+        parameters={"query": similarity_query},
     )
     return [_convert_result(data, QueryResult) for data in results]
 
@@ -113,11 +114,12 @@ def get_items_by_id(*ids: str) -> list[TextChunk]:
     Get items by their IDs.
     """
     items: list[dict] = get_or_create_index().search(
-        query=f"""
+        query="""
             select id, data
             from txtai
-            where id in ('{"','".join(ids)}')
-        """,  # noqa: S608
+            where id in (:ids_list)
+        """,
+        parameters={"ids_list": f"""'{"','".join(ids)}'"""},
     )
     return [_convert_result(data, TextChunk) for data in items]
 
