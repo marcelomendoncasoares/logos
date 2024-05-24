@@ -17,7 +17,38 @@ typer = "^0.9.0"
 [tool.poetry.group.dev.dependencies]
 doc2docx = "^0.2.4"
 docx2txt = "^0.8"
-ipykernel = "^6.27.1"
+ipykernel = "^6.29.4"
+ruff = "^0.4.5"
+
+[tool.ruff]
+select = ["ALL"]
+ignore = [
+    "ANN101",  # Missing type annotation for `self` in method
+    "ANN102",  # Missing annotation for cls
+    "C408",    # Unnecessary `dict` call (rewrite as a literal)
+    "FA102",   # Missing from future import annotations
+    "D105",    # Missing docstring in magic method
+    "D200",    # One-line docstring should fit on one line
+    "D202",    # No blank lines allowed after function docstring
+    "D205",    # 1 blank line required between summary line and description
+    "D212",    # Multi-line docstring summary should start at the first line
+    "D407",    # Missing dashed underline after section
+    "D413",    # Missing blank line after last section
+    "EM101",   # Exception must not use a string literal, assign to variable first
+    "EM102",   # Exception must not use an f-string literal, assign to variable first
+    "FA100",   # Add `from __future__ import annotations` to simplify `typing.Optional`
+    "FIX002",  # Line contains TODO, consider resolving the issue
+    "SIM118",  # Use `key in dict` instead of `key in dict.keys()`
+    "TD002",   # Missing author in TODO
+    "TD003",   # Missing issue link on the line following this TODO
+    "TRY003",  # Avoid specifying long messages outside the exception class
+]
+
+[tool.ruff.lint.isort]
+case-sensitive = true
+combine-as-imports = true
+lines-after-imports = 2
+lines-between-types = 1
 
 [build-system]
 requires = ["poetry-core"]
