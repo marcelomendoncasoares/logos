@@ -14,11 +14,8 @@ from logos.data.extract import (
     parse_documents_into_nodes,
     parse_nodes_into_text_chunks,
 )
-from logos.data.index import (
-    delete_index,
-    index_documents,
-    search_index,
-)
+from logos.data.index import delete_index, index_documents
+from logos.search.index import search_index
 
 
 app = typer.Typer(no_args_is_help=True)
