@@ -20,6 +20,7 @@ class TextChunk(BaseModel):
     id: str
     text: str
     source: Source
+    headers: list[str] = []
     paragraphs: list[ParagraphReference]
     # TODO: Add relations: {previous, next}
 
@@ -32,5 +33,6 @@ class TextChunk(BaseModel):
             id=node.id_,
             text=node.get_content(MetadataMode.EMBED),
             source=node.metadata["source"],
+            headers=node.metadata.get("headers", []),
             paragraphs=node.metadata["paragraphs"],
         )
