@@ -1,0 +1,3 @@
+"""
+Entities for logos package.
+"""
