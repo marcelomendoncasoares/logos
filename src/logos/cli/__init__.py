@@ -6,30 +6,36 @@ Logos CLI entrypoint.
 from fnmatch import fnmatch
 from pathlib import Path
 from typing import Optional
+from warnings import simplefilter
 
 import typer
 
+from logos.config import Config
 from logos.data.extract import (
     load_documents,
     parse_documents_into_nodes,
     parse_nodes_into_text_chunks,
 )
-from logos.data.index import delete_index, index_documents
+from logos.data.index import delete_index, get_or_create_index, index_documents
 from logos.search.index import search_index
 
+
+simplefilter("ignore", category=FutureWarning)
 
 app = typer.Typer(no_args_is_help=True)
 """Main CLI app to group commands."""
 
 
 @app.command()
-def index(
+def index(  # noqa: PLR0913
     paths: list[Path],
     *,
     include: Optional[list[str]] = None,
     exclude: Optional[list[str]] = None,
     limit: int = 0,
     reset: bool = False,
+    model: Optional[str] = None,
+    fast: bool = False,
 ) -> None:
     """
     Index all files in the provided paths.
@@ -38,12 +44,17 @@ def index(
     first, selecting only matching files. Both include and exclude clauses
     accept glob patterns.
 
+    Note: If the index already exists, it will be updated with the new data.
+    Passing `model` or `fast` will reset the index.
+
     Args:
         paths: List of paths to load documents from.
         include: List of glob pattern to match files to keep (evaluated first).
         exclude: List of glob pattern to match files to exclude.
         limit: Maximum number of nodes to index. If 0, all nodes are indexed.
         reset: Whether to reset the index before indexing.
+        model: Custom HuggingFace sentence-transformers model to use for indexing.
+        fast: Whether to use a small model to speed up indexing. Ideal for testing.
     """
     if not paths:
         typer.echo("No paths provided.")
@@ -61,11 +72,15 @@ def index(
     if exclude:
         paths = [p for p in paths if not any(fnmatch(str(p), e) for e in exclude)]
 
+    if reset or fast or model:
+        delete_index()
+    if fast or model:
+        Config.MODEL_PATH = model or "intfloat/multilingual-e5-small"
+        get_or_create_index.cache_clear()
+
     documents = load_documents(input_files=paths)
     nodes = parse_documents_into_nodes(documents)
     text_chunks = parse_nodes_into_text_chunks(nodes)
-    if reset:
-        delete_index()
     index_documents(text_chunks if not limit else text_chunks[:limit])
 
 

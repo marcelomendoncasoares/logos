@@ -13,6 +13,7 @@ from sentence_transformers import SentenceTransformer
 from tqdm import tqdm
 from txtai.embeddings import Embeddings
 
+from logos.config import Config
 from logos.entities.text import TextChunk
 
 
@@ -39,7 +40,7 @@ def get_or_create_index() -> Embeddings:
             keyword=True,
             hybrid=True,
             method="sentence-transformers",  # Necessary to access the tokenizer
-            path="intfloat/multilingual-e5-large",
+            path=Config.MODEL_PATH,
             instructions=dict(
                 query="query: ",
                 data="passage: ",
