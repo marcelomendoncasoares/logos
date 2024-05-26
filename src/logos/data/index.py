@@ -6,7 +6,6 @@ Indexing functions for the CLI.
 import shutil
 
 from functools import lru_cache
-from pathlib import Path
 from typing import TYPE_CHECKING, cast
 
 from sentence_transformers import SentenceTransformer
@@ -22,7 +21,7 @@ if TYPE_CHECKING:
     from transformers import PreTrainedTokenizerFast
 
 
-INDEX_DEFAULT_LOCATION = Path.home() / ".logos" / "index"
+INDEX_DEFAULT_LOCATION = Config.ROOT_FOLDER / "index"
 """Path to the default location of the index."""
 
 

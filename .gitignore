@@ -168,6 +168,7 @@ cython_debug/
 
 # Project specific
 .faiss
+.logos
 _local_test*
 
 # Data sources that may be included in the future
