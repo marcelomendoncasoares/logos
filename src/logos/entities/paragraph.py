@@ -11,9 +11,23 @@ from pydantic import BaseModel
 
 
 REFERENCE_REGEX = (
-    r"\[((?P<page_type>pag|solapas|tapa) (?P<page_num>\d+) )?par (?P<paragraph>\d+)\] "
+    r"(\[|\()"
+    r"((?P<page_type>pag|pág\.|solapas|tapa) (?P<page_num>\d+) )?"
+    r"(par|§) (?P<paragraph>\d+)"
+    r"(\]|\)) "
 )
-"""Regex pattern to match paragraph references."""
+"""
+Regex pattern to match paragraph references.
+
+The pattern can be described as follows:
+    - Reference can be surrounded by square brackets or parentheses.
+    - Page number is optional and preceded by a page type if present.
+    - Page type can be one of "pag", "pág.", "solapas" or "tapa".
+    - When present, the page number comes before the paragraph number.
+    - Paragraph number is always present and preceded by "par" or "§".
+    - All elements are separated by spaces.
+    - The closing bracket/parentheses is always followed by a space.
+"""
 
 
 class ParagraphReference(BaseModel):
@@ -26,28 +40,37 @@ class ParagraphReference(BaseModel):
     page_type: str | None = None
 
     @classmethod
-    def extract_all(cls, text: str, *, remove: bool = False) -> list[Self]:
+    def extract_all(cls, text: str) -> list[Self]:
         """
-        Extract all paragraph references from a text.
-
-        Args:
-            text: Text to extract references from.
-            remove: Whether to remove references from the text during extraction.
-
-        Returns:
-            List of found references.
+        Extract a list of all paragraph references found in a text.
         """
-        found_refs = [
-            cls(**match.groupdict()) for match in re.finditer(REFERENCE_REGEX, text)
-        ]
-        if remove:
-            text = re.sub(REFERENCE_REGEX, "", text)
-        return found_refs
+        return [cls(**m.groupdict()) for m in re.finditer(REFERENCE_REGEX, text)]
+
+    @classmethod
+    def remove(cls, text: str) -> str:
+        """
+        Remove all paragraph references from a text.
+        """
+        return re.sub(REFERENCE_REGEX, lambda _: "", text)
+
+    @classmethod
+    def format(cls, text: str) -> str:
+        """
+        Format all paragraph references in a text in a more user-readable format.
+        """
+        return re.sub(REFERENCE_REGEX, lambda m: f"({cls(**m.groupdict())}) ", text)
+
+    @classmethod
+    def startswith(cls, text: str) -> bool:
+        """
+        Whether a text starts with a paragraph reference.
+        """
+        return re.match(REFERENCE_REGEX, text) is not None
 
     def __str__(self) -> str:
         if self.page_num is None:
             return f"§ {self.paragraph}"
-        page_type = self.page_type or "pág"
+        page_type = self.page_type or "pág."
         if self.page_type == "pag":
-            page_type = "pág"
+            page_type = "pág."
         return f"{page_type} {self.page_num} § {self.paragraph}"

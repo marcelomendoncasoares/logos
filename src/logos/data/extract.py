@@ -69,12 +69,13 @@ def _post_process_nodes_fix_node(nodes: list[TextNode]) -> None:
     """
     for node in nodes:
         node.id_ = str(uuid5(NAMESPACE_DNS, node.get_content(MetadataMode.ALL)))
-        node.metadata["paragraphs"] = ParagraphReference.extract_all(node.get_content())
+        node.metadata["paragraphs"] = ParagraphReference.extract_all(node.text)
 
 
 def _post_process_nodes_fix_relationships(nodes: list[TextNode]) -> None:
     """
-    Fix relationships between nodes after IDs changes.
+    Fix relationships between nodes after IDs changes and missing paragraph
+    references for text chunks that are in the middle of a paragraph.
     """
     for node, next_node in zip(nodes[:-1], nodes[1:]):
         if node.metadata["source"] != next_node.metadata["source"]:
@@ -82,10 +83,22 @@ def _post_process_nodes_fix_relationships(nodes: list[TextNode]) -> None:
             next_node.relationships.pop(NodeRelationship.PREVIOUS)
             continue
 
+        next_pars: list[ParagraphReference] = next_node.metadata.get("paragraphs", [])
+        if not node.metadata["paragraphs"]:
+            raise ValueError(
+                f"Neither node {node.node_id} nor its predecessors has paragraphs "
+                f"metadata. Its source is {node.metadata['source']} and its text "
+                f"is: {node.text}. Its predecessor is {node.prev_node.node_id}.",
+            )
+
+        current_last_paragraph = node.metadata["paragraphs"][-1]
+        if not next_pars or not ParagraphReference.startswith(next_node.text):
+            next_node.metadata["paragraphs"] = [current_last_paragraph, *next_pars]
+            next_node.text = f"[{current_last_paragraph}] [...] {next_node.text}"
+            node.text = f"{node.text} [...]"
+
         node.relationships[NodeRelationship.NEXT] = next_node.as_related_node_info()
         next_node.relationships[NodeRelationship.PREVIOUS] = node.as_related_node_info()
-        if not next_node.metadata.get("paragraphs"):
-            next_node.metadata["paragraphs"] = node.metadata["paragraphs"]
 
 
 def parse_documents_into_nodes(documents: list[Document]) -> list[TextNode]:

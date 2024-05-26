@@ -19,6 +19,7 @@ from logos.data.extract import (
     parse_nodes_into_text_chunks,
 )
 from logos.data.index import delete_index, get_or_create_index, index_documents
+from logos.entities.paragraph import ParagraphReference
 from logos.search.index import search_index
 
 
@@ -117,9 +118,7 @@ def search(query: str, min_score: float = 0.0, limit: Optional[int] = None) -> N
         print(f"Score: [yellow]{result.score:.4f}")
         metadata, text = result.text.embed_text.split("\n\n", 1)
         metadata += f"\nParagraphs: {', '.join(map(str, result.text.paragraphs))}"
-        text = text.replace("[pag ", "(pág. ")
-        text = text.replace(" par ", " § ").replace("[par ", "(§ ").replace("]", ")")
-        print(f"[italic]{metadata}\n\n{text}\n")
+        print(f"[italic]{metadata}\n\n{ParagraphReference.format(text)}\n")
 
 
 if __name__ == "__main__":
