@@ -10,6 +10,8 @@ from warnings import simplefilter
 
 import typer
 
+from rich import print
+
 from logos.config import Config
 from logos.data.extract import (
     load_documents,
@@ -56,9 +58,6 @@ def index(  # noqa: PLR0913
         model: Custom HuggingFace sentence-transformers model to use for indexing.
         fast: Whether to use a small model to speed up indexing. Ideal for testing.
     """
-    if not paths:
-        typer.echo("No paths provided.")
-        raise typer.Exit(code=1)
 
     paths = [
         rp
@@ -72,16 +71,22 @@ def index(  # noqa: PLR0913
     if exclude:
         paths = [p for p in paths if not any(fnmatch(str(p), e) for e in exclude)]
 
-    if reset or fast or model:
-        delete_index()
     if fast or model:
         Config.MODEL_PATH = model or "intfloat/multilingual-e5-small"
+        model_url = f"https://huggingface.co/{Config.MODEL_PATH}"
+        model_print = f"[link={model_url}]{Config.MODEL_PATH}[/link]"
+        print(f"Using model: [bold yellow]{model_print}[/bold yellow].\n")
         get_or_create_index.cache_clear()
+    if reset or fast or model:
+        print("Deleting existing index...")
+        delete_index()
 
+    print("Starting index process...")
     documents = load_documents(input_files=paths)
     nodes = parse_documents_into_nodes(documents)
     text_chunks = parse_nodes_into_text_chunks(nodes)
     index_documents(text_chunks if not limit else text_chunks[:limit])
+    print("[bold green]All nodes indexed with success.\n")
 
 
 @app.command()
@@ -91,7 +96,9 @@ def delete(*, yes: bool = False) -> None:
     """
     if not (yes or typer.confirm("Are you sure to delete the index?", abort=True)):
         return
+    print("[red]Deleting[/red] existing index...")
     delete_index()
+    print("[bold green]Index deleted with success.\n")
 
 
 @app.command()
@@ -104,10 +111,15 @@ def search(query: str, min_score: float = 0.0, limit: Optional[int] = None) -> N
         min_score: Minimum score to consider.
         limit: Maximum number of results to return.
     """
-    typer.echo(f"\nResults for query: '{query}'\n")
+    print(f"\nResults for query: [yellow]'{query}'\n")
     for result in search_index(query, min_score=min_score, limit=limit):
-        typer.echo("------------------------")
-        typer.echo(f"Score: {result.score:.4f}\n{result.text.embed_text}\n")
+        print(f"[gray]{'-'*80}")
+        print(f"Score: [yellow]{result.score:.4f}")
+        metadata, text = result.text.embed_text.split("\n\n", 1)
+        metadata += f"\nParagraphs: {', '.join(map(str, result.text.paragraphs))}"
+        text = text.replace("[pag ", "(pág. ")
+        text = text.replace(" par ", " § ").replace("[par ", "(§ ").replace("]", ")")
+        print(f"[italic]{metadata}\n\n{text}\n")
 
 
 if __name__ == "__main__":
