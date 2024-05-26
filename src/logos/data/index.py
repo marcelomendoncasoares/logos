@@ -7,11 +7,18 @@ import shutil
 
 from functools import lru_cache
 from pathlib import Path
+from typing import TYPE_CHECKING, cast
 
+from sentence_transformers import SentenceTransformer
 from tqdm import tqdm
 from txtai.embeddings import Embeddings
 
 from logos.entities.text import TextChunk
+
+
+if TYPE_CHECKING:
+    from torch import Tensor
+    from transformers import PreTrainedTokenizerFast
 
 
 INDEX_DEFAULT_LOCATION = Path.home() / ".logos" / "index"
@@ -31,6 +38,7 @@ def get_or_create_index() -> Embeddings:
             autoid="uuid5",
             keyword=True,
             hybrid=True,
+            method="sentence-transformers",  # Necessary to access the tokenizer
             path="intfloat/multilingual-e5-large",
             instructions=dict(
                 query="query: ",
@@ -47,6 +55,17 @@ def get_or_create_index() -> Embeddings:
     embeddings = Embeddings()
     embeddings.load(str(INDEX_DEFAULT_LOCATION))
     return embeddings
+
+
+def tokenize_text(text: str) -> list[str]:
+    """
+    Return the list of tokens for a given text according to the chosen model.
+    """
+    model = cast(SentenceTransformer, get_or_create_index().model.model)
+    tokenizer: PreTrainedTokenizerFast = model.tokenizer
+    token_ids: Tensor = model.tokenize([text])["input_ids"][0]
+    text_tokens: list[str] = tokenizer.convert_ids_to_tokens(token_ids)
+    return text_tokens
 
 
 def index_documents(data: list[TextChunk]) -> None:

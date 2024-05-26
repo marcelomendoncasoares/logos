@@ -92,6 +92,7 @@ def parse_documents_into_nodes(documents: list[Document]) -> list[TextNode]:
     """
     Parse documents into text nodes.
     """
+    from logos.data.index import tokenize_text
 
     markdown_parser = MarkdownNodeParser.from_defaults()
     section_nodes = markdown_parser.get_nodes_from_documents(documents)
@@ -100,6 +101,7 @@ def parse_documents_into_nodes(documents: list[Document]) -> list[TextNode]:
     sentence_parser = SentenceSplitter.from_defaults(
         chunk_size=192,
         chunk_overlap=32,
+        tokenizer=tokenize_text,
         paragraph_separator="\n\n",
     )
     nodes = sentence_parser.get_nodes_from_documents(section_nodes)
@@ -110,6 +112,9 @@ def parse_documents_into_nodes(documents: list[Document]) -> list[TextNode]:
     no_ref = [node for node in nodes if len(node.metadata.get("paragraphs", [])) == 0]
     if len(no_ref) > 0:
         raise ValueError(f"There are {len(no_ref)} nodes without paragraphs: {no_ref}")
+
+    # TODO: Assert that there are N 'ParagraphReferences' equal to the number
+    # of paragraphs, which is currently not assured during the extraction.
 
     return nodes
 

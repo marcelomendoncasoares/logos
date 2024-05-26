@@ -18,6 +18,7 @@ pydantic = "^2.7.1"
 txtai = {extras = ["database", "graph"], version = "^7.1.0"}
 typer = "^0.9.0"
 pre-commit = "^3.7.1"
+sentence-transformers = "^2.7.0"
 
 [tool.poetry.group.dev.dependencies]
 doc2docx = "^0.2.4"
