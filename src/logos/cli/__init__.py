@@ -12,20 +12,13 @@ import typer
 
 from rich import print
 
-from logos.config import Config
-from logos.data.extract import (
-    load_documents,
-    parse_documents_into_nodes,
-    parse_nodes_into_text_chunks,
-)
-from logos.data.index import delete_index, get_or_create_index, index_documents
-from logos.entities.paragraph import ParagraphReference
-from logos.search.index import search_index
-
 
 simplefilter("ignore", category=FutureWarning)
 
-app = typer.Typer(no_args_is_help=True)
+app = typer.Typer(
+    context_settings={"help_option_names": ["-h", "--help"]},
+    no_args_is_help=True,
+)
 """Main CLI app to group commands."""
 
 
@@ -59,6 +52,15 @@ def index(  # noqa: PLR0913
         model: Custom HuggingFace sentence-transformers model to use for indexing.
         fast: Whether to use a small model to speed up indexing. Ideal for testing.
     """
+    print("\n[bold]Initializing...[/bold]")
+
+    from logos.config import Config
+    from logos.data.extract import (
+        load_documents,
+        parse_documents_into_nodes,
+        parse_nodes_into_text_chunks,
+    )
+    from logos.data.index import delete_index, get_or_create_index, index_documents
 
     paths = [
         rp
@@ -98,6 +100,9 @@ def delete(*, yes: bool = False) -> None:
     if not (yes or typer.confirm("Are you sure to delete the index?", abort=True)):
         return
     print("[red]Deleting[/red] existing index...")
+
+    from logos.data.index import delete_index
+
     delete_index()
     print("[bold green]Index deleted with success.\n")
 
@@ -112,13 +117,18 @@ def search(query: str, min_score: float = 0.0, limit: Optional[int] = None) -> N
         min_score: Minimum score to consider.
         limit: Maximum number of results to return.
     """
+    print("\n[bold]Initializing...[/bold]")
+
+    from logos.entities.paragraph import ParagraphReference
+    from logos.search.index import search_index
+
     print(f"\nResults for query: [yellow]'{query}'\n")
     for result in search_index(query, min_score=min_score, limit=limit):
         print(f"[gray]{'-'*80}")
         print(f"Score: [yellow]{result.score:.4f}")
         metadata, text = result.text.embed_text.split("\n\n", 1)
         metadata += f"\nParagraphs: {', '.join(map(str, result.text.paragraphs))}"
-        print(f"[italic]{metadata}\n\n{ParagraphReference.format(text)}\n")
+        print(f"{metadata}\n\n[italic]{ParagraphReference.format(text)}[/italic]\n")
 
 
 if __name__ == "__main__":

@@ -126,7 +126,8 @@ paragraphs, etc).
 
 ## CLI tool
 
-- [ ] Speed up the imports for a quicker CLI loading (specially --help calls).
+- [x] ~~Speed up the imports for a quicker CLI loading (specially for --help
+      calls)~~.
 - [ ] Move the `doc2docx` script to the CLI as a utility.
 
 # Contributing
