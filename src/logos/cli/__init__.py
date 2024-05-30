@@ -3,6 +3,8 @@ Logos CLI entrypoint.
 
 """
 
+import subprocess
+
 from fnmatch import fnmatch
 from pathlib import Path
 from typing import Optional
@@ -129,6 +131,23 @@ def search(query: str, min_score: float = 0.0, limit: Optional[int] = None) -> N
         metadata, text = result.text.embed_text.split("\n\n", 1)
         metadata += f"\nParagraphs: {', '.join(map(str, result.text.paragraphs))}"
         print(f"{metadata}\n\n[italic]{ParagraphReference.format(text)}[/italic]\n")
+
+
+@app.command()
+def start() -> None:
+    """
+    Start Logos web application.
+    """
+    print("\n[bold]Starting Logos web application...[/bold]")
+
+    import logos
+
+    app_file_path = Path(logos.__file__) / ".." / "app" / "__init__.py"
+
+    subprocess.run(
+        f"streamlit run {app_file_path} --server.headless true",  # noqa: S603
+        check=True,
+    )
 
 
 if __name__ == "__main__":
