@@ -6,7 +6,7 @@ Indexing functions for the CLI.
 import shutil
 
 from functools import lru_cache
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 
 from sentence_transformers import SentenceTransformer
 from tqdm import tqdm
@@ -54,11 +54,18 @@ def get_or_create_index() -> Embeddings:
     return embeddings
 
 
+def get_embedding_model() -> SentenceTransformer:
+    """
+    Get the embedding model used in the index.
+    """
+    return get_or_create_index().model.model
+
+
 def tokenize_text(text: str) -> list[str]:
     """
     Return the list of tokens for a given text according to the chosen model.
     """
-    model = cast(SentenceTransformer, get_or_create_index().model.model)
+    model = get_embedding_model()
     tokenizer: PreTrainedTokenizerFast = model.tokenizer
     token_ids: Tensor = model.tokenize([text])["input_ids"][0]
     text_tokens: list[str] = tokenizer.convert_ids_to_tokens(token_ids)
