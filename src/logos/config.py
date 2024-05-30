@@ -6,6 +6,17 @@ import os
 
 from pathlib import Path
 
+from pydantic import BaseModel
+
+
+class ModelInstructionsConfig(BaseModel):
+    """
+    Configuration for the model instructions.
+    """
+
+    query: str = ""
+    data: str = ""
+
 
 class Config:
     """
@@ -17,3 +28,9 @@ class Config:
 
     MODEL_PATH = "intfloat/multilingual-e5-large"
     """Default embedding model path."""
+
+    MODEL_INSTRUCTIONS = ModelInstructionsConfig(
+        query="query: ",
+        data="data: ",
+    )
+    """Instructions for the default model to prepend queries and texts."""

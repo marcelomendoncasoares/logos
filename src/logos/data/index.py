@@ -40,10 +40,7 @@ def get_or_create_index() -> Embeddings:
             hybrid=True,
             method="sentence-transformers",  # Necessary to access the tokenizer
             path=Config.MODEL_PATH,
-            instructions=dict(
-                query="query: ",
-                data="passage: ",
-            ),
+            instructions=Config.MODEL_INSTRUCTIONS.model_dump(),
             content=True,
             scoring=dict(
                 method="bm25",
