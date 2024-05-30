@@ -20,6 +20,11 @@ typer = "^0.9.0"
 pre-commit = "^3.7.1"
 sentence-transformers = "^2.7.0"
 
+[tool.poetry.group.app.dependencies]
+streamlit = "^1.35.0"
+streamlit-pills = "^0.3.0"
+streamlit-utils = "^0.1.1"
+
 [tool.poetry.group.dev.dependencies]
 doc2docx = "^0.2.4"
 docx2txt = "^0.8"
