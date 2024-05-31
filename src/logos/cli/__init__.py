@@ -142,7 +142,7 @@ def start() -> None:
 
     import logos
 
-    app_file_path = Path(logos.__file__) / ".." / "app" / "__init__.py"
+    app_file_path = Path(logos.__file__) / ".." / "app" / "main.py"
 
     subprocess.run(
         f"streamlit run {app_file_path} --server.headless true",  # noqa: S603
