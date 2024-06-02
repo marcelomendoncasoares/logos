@@ -26,6 +26,7 @@ streamlit = "^1.35.0"
 streamlit-float = "^0.3.4"
 streamlit-pills = "^0.3.0"
 streamlit-utils = "^0.1.1"
+streamlit-keyup = "^0.2.4"
 
 [tool.poetry.group.dev.dependencies]
 doc2docx = "^0.2.4"

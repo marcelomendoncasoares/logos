@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING
 
 import streamlit as st
 
+from st_keyup import st_keyup
 from streamlit_float import float_init, float_parent
 from streamlit_pills import pills
 from streamlit_utils.state import session_state
@@ -71,11 +72,12 @@ with custom_css_container(
         }}
     """,
 ):
-    st.text_input(
+    st_keyup(
         "Logos Search",
         placeholder="What would you like to ask?",
         key="LogosState.query",
         label_visibility="collapsed",
+        debounce=500,
     )
 
     selected = pills(
@@ -91,7 +93,7 @@ with custom_css_container(
 add_vertical_space(4)
 
 # Avoid re-running the code block if the query is the same
-if LogosState.query != LogosState.previous_query:
+if LogosState.query and (LogosState.query != LogosState.previous_query):
     for i, result in enumerate(execute_search(LogosState.query)):
         score = f"Score: **:orange[{result.score:.4f}]**"
         metadata, text = result.text.embed_text.split("\n\n", 1)
