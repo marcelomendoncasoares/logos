@@ -72,6 +72,20 @@ def _post_process_nodes_fix_node(nodes: list[TextNode]) -> None:
         node.metadata["paragraphs"] = ParagraphReference.extract_all(node.text)
 
 
+def _post_process_nodes_remove_empty(nodes: list[TextNode]) -> None:
+    """
+    Remove nodes that have no content, only headers and paragraph reference.
+    """
+    for node, next_node in zip(nodes[:-1], nodes[1:]):
+        if ParagraphReference.remove(node.text).replace("[...]", "").strip():
+            continue
+        if node.prev_node:
+            next_node.relationships[NodeRelationship.PREVIOUS] = node.prev_node
+        else:
+            next_node.relationships.pop(NodeRelationship.PREVIOUS)
+        nodes.remove(node)
+
+
 def _post_process_nodes_fix_relationships(nodes: list[TextNode]) -> None:
     """
     Fix relationships between nodes after IDs changes and missing paragraph
@@ -119,6 +133,7 @@ def parse_documents_into_nodes(documents: list[Document]) -> list[TextNode]:
     )
     nodes = sentence_parser.get_nodes_from_documents(section_nodes)
     _post_process_nodes_fix_node(nodes)
+    _post_process_nodes_remove_empty(nodes)
     _post_process_nodes_fix_relationships(nodes)
 
     # Assert all nodes have paragraphs
