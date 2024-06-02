@@ -2,6 +2,8 @@
 Theme utilities for logos app.
 """
 
+from time import sleep
+
 from pydantic import BaseModel
 from streamlit_theme import st_theme
 
@@ -53,4 +55,6 @@ def get_theme() -> ThemeModel:
     """
     Get the theme object to be used in the app.
     """
-    return ThemeModel(**st_theme())
+    while (theme := st_theme()) is None:
+        sleep(0.1)
+    return ThemeModel(**theme)
