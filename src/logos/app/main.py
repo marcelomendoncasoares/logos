@@ -9,9 +9,13 @@ from typing import TYPE_CHECKING
 
 import streamlit as st
 
+from streamlit_float import float_init, float_parent
 from streamlit_pills import pills
 from streamlit_utils.state import session_state
 
+from logos.app.components.container import custom_css_container
+from logos.app.components.empty import add_vertical_space
+from logos.app.components.theme import get_theme
 from logos.entities.paragraph import ParagraphReference
 
 
@@ -48,20 +52,42 @@ def execute_search(query: str) -> list["QueryResult"]:
     return search_index(query, limit=100)
 
 
-st.text_input(
-    "Logos Search",
-    placeholder="What would you like to ask?",
-    key="LogosState.query",
-    label_visibility="collapsed",
-)
+float_init()
 
-selected = pills(
-    label="Label",
-    options=["exact", "sparse", "dense"],
-    index=None,
-    label_visibility="collapsed",
-    clearable=True,
-)
+theme = get_theme()
+"""Theme object to be used in the app."""
+
+with custom_css_container(
+    key="top_search_bar",
+    css_styles=f"""
+        {{
+            top: 40px;
+            background-color: {theme.backgroundColor};
+            padding-top: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #9f1117;
+            box-shadow: 0 10px 20px -2px {theme.backgroundColor};
+        }}
+    """,
+):
+    st.text_input(
+        "Logos Search",
+        placeholder="What would you like to ask?",
+        key="LogosState.query",
+        label_visibility="collapsed",
+    )
+
+    selected = pills(
+        label="Label",
+        options=["exact", "sparse", "dense"],
+        index=None,
+        label_visibility="collapsed",
+        clearable=True,
+    )
+
+    float_parent()
+
+add_vertical_space(4)
 
 # Avoid re-running the code block if the query is the same
 if LogosState.query != LogosState.previous_query:

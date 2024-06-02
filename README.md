@@ -92,8 +92,10 @@ paragraphs, etc).
 
 ## Streamlit Search App
 
-- [ ] Build a first app version that allows the user to search for a specific
-      topic and get a list of paragraphs that contain the topic.
+- [x] ~~Build a first app version that allows the user to search for a specific
+      topic and get a list of paragraphs that contain the topic.~~
+- [ ] Add a button to copy the paragraph to the clipboard with citation for
+      easy usage in study programs.
 - [ ] Allow the user to select only `dense`, only `sparse` or only `keyword`
       search while performing a query.
 - [ ] If the passage is only a fragment of a paragraph, show the full paragraph
@@ -102,6 +104,9 @@ paragraphs, etc).
       on the search results (maybe use LLM to score indicate relevant parts).
 - [ ] Allow the user to click on a search result and see the surrounding
       paragraphs, scrolling through them as if viewing the original source.
+- [ ] Add a verification to correct eventually mistyped queries, either using
+      levenstein distance or an LLM model.
+- [ ] Add autocomplete suggestions for the search bar while the user types.
 - [ ] Add a chat with a `Retriever` chatbot that helps the user to find the
       most relevant paragraphs for a specific topic.
 

@@ -21,7 +21,9 @@ pre-commit = "^3.7.1"
 sentence-transformers = "^2.7.0"
 
 [tool.poetry.group.app.dependencies]
+st-theme = "^1.2.3"
 streamlit = "^1.35.0"
+streamlit-float = "^0.3.4"
 streamlit-pills = "^0.3.0"
 streamlit-utils = "^0.1.1"
 
