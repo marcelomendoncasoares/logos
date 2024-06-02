@@ -115,7 +115,11 @@ if LogosState.query and (LogosState.query != LogosState.previous_query):
             for paragraph in ParagraphReference.format(text).split("\n\n")
         ]
         paragraph_reprs = [
-            f"_{paragraph_repr.strip()}_".replace("...", ":orange[...]")
+            (
+                f"_{paragraph_repr.strip()}_".replace("...", ":orange[...]")
+                .replace("\n", "_\n_")
+                .replace("_\n_- ", "_\n\n_- ")
+            )
             for paragraph_repr in paragraph_reprs
         ]
 
