@@ -94,10 +94,12 @@ paragraphs, etc).
 
 - [x] ~~Build a first app version that allows the user to search for a specific
       topic and get a list of paragraphs that contain the topic.~~
-- [ ] Add a button to copy the paragraph to the clipboard with citation for
-      easy usage in study programs.
+- [x] ~~Add a button to copy the paragraph to the clipboard with citation for
+      easy usage in study programs.~~
 - [ ] Allow the user to select only `dense`, only `sparse` or only `keyword`
       search while performing a query.
+- [ ] Paginate the search results to show only a few paragraphs (configurable)
+      per page to improve the loading time.
 - [ ] If the passage is only a fragment of a paragraph, show the full paragraph
       instead, with the fragment highlighted.
 - [ ] Add highlighting to the parts of each passage that justify its position
