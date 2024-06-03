@@ -10,6 +10,8 @@ import streamlit as st
 from streamlit.delta_generator import DeltaGenerator
 from streamlit_utils.state import session_state
 
+from logos.app.components.container import custom_css_container
+
 
 T = TypeVar("T")
 
@@ -95,7 +97,7 @@ class Paginate(Generic[T]):
                 label_visibility="collapsed",
             )
 
-        with col_page_info:
+        with col_page_info, custom_css_container("pg_info", "{margin-top: 7px;}"):
             st.markdown(f"Page **{current_page}** of **{self.total_pages}**")
 
         return current_page

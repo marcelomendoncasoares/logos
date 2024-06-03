@@ -94,7 +94,7 @@ with custom_css_container(
     if LogosState.query:
         search_result = execute_search(LogosState.query)
         paginated = Paginate(search_result, key="search_results")
-        with col_pages:
+        with col_pages, custom_css_container("pg_container", "{margin-top: -5px;}"):
             LogosState.current_page = paginated.incremental(*st.columns((2, 2.5, 2)))
 
     float_parent()
@@ -169,6 +169,7 @@ if LogosState.query:
                         # TODO: Improve the text to be copied.
                         # TODO: Add a toast message when the text has been copied.
                         # TODO: Add a helper tooltip to the button when hovered.
+                        # TODO: Fix background flashing black on reload (Chrome).
                         copy_to_clipboard_button(
                             paragraph_repr,
                             key=f"copy_button_{i}_{j}",
