@@ -17,6 +17,7 @@ from streamlit_utils.state import session_state
 from logos.app.components.button import copy_to_clipboard_button
 from logos.app.components.container import custom_css_container
 from logos.app.components.empty import add_vertical_space
+from logos.app.components.paginate import Paginate
 from logos.app.components.theme import get_theme
 from logos.entities.paragraph import ParagraphReference
 
@@ -33,7 +34,7 @@ class LogosState:
 
     counter: int = 0
     query: str = ""
-    previous_query: str = ""
+    current_page: int = 1
 
 
 st.set_page_config(
@@ -80,21 +81,29 @@ with custom_css_container(
         debounce=500,
     )
 
-    selected = pills(
-        label="Label",
-        options=["exact", "sparse", "dense"],
-        index=None,
-        label_visibility="collapsed",
-        clearable=True,
-    )
+    col_pills, _, col_pages = st.columns((3, 2, 5))
+
+    with col_pills:
+        selected = pills(
+            label="Label",
+            options=["exact", "sparse", "dense"],
+            index=None,
+            label_visibility="collapsed",
+            clearable=True,
+        )
+    if LogosState.query:
+        search_result = execute_search(LogosState.query)
+        paginated = Paginate(search_result, key="search_results")
+        with col_pages:
+            LogosState.current_page = paginated.incremental(*st.columns((2, 2.5, 2)))
 
     float_parent()
 
 add_vertical_space(4)
 
 # Avoid re-running the code block if the query is the same
-if LogosState.query and (LogosState.query != LogosState.previous_query):
-    for i, result in enumerate(execute_search(LogosState.query)):
+if LogosState.query:
+    for i, result in enumerate(paginated.get_page(LogosState.current_page)):
         score = f"Score: **:orange[{result.score:.4f}]**"
         metadata, text = result.text.embed_text.split("\n\n", 1)
 
