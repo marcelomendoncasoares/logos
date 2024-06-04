@@ -4,8 +4,18 @@ Button that copies the given text to the clipboard when clicked.
 """
 
 import json
+import time
 
+from typing import TYPE_CHECKING
+
+import streamlit as st
 import streamlit.components.v1 as components
+
+from streamlit_float import float_css_helper, float_parent
+
+
+if TYPE_CHECKING:
+    from streamlit.delta_generator import DeltaGenerator
 
 
 BUTTON_DEFAULT_CSS = {
@@ -95,3 +105,33 @@ def copy_to_clipboard_button(  # noqa: PLR0913
         height=height,
         width=width,
     )
+
+
+def back_to_top(key: str | None = None, *, rebuild: bool = True) -> None:
+    """
+    Create a button that scrolls the page to the top when clicked.
+
+    Args:
+        key: The key associated with this button.
+        rebuild: Whether to rebuild the button after scrolling to the top.
+            If set to False, the button will be removed after scrolling.
+    """
+
+    def _create_button(dg: "DeltaGenerator") -> None:
+        if dg.button("⭱", key=key, type="secondary"):
+            # Replace the button by an empty container to avoid the button moving.
+            with dg.empty():
+                components.html("""
+                    <script>
+                        var body = window.parent.document.querySelector(".main");
+                        body.scrollTop = 0;
+                    </script>
+                """)
+            time.sleep(0.1)
+            # Re-run the script after scroll to rebuild the button.
+            if rebuild:
+                st.rerun()
+
+    with st.container():
+        float_parent(float_css_helper(width="2.2rem", right="2rem", bottom="1rem"))
+        _create_button(st.empty())

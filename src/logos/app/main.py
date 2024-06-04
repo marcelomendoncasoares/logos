@@ -14,7 +14,7 @@ from streamlit_float import float_init, float_parent
 from streamlit_pills import pills
 from streamlit_utils.state import session_state
 
-from logos.app.components.button import copy_to_clipboard_button
+from logos.app.components.button import back_to_top, copy_to_clipboard_button
 from logos.app.components.container import custom_css_container
 from logos.app.components.empty import add_vertical_space
 from logos.app.components.paginate import Paginate
@@ -182,3 +182,5 @@ if LogosState.query:
                             args=("Context expansion is not implemented yet.",),
                             use_container_width=True,
                         )
+
+    back_to_top(key="main_back_to_top_button")
