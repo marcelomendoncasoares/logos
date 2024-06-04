@@ -112,7 +112,7 @@ if LogosState.query:
             source, headers = (
                 metadata.split("\n") if "\n" in metadata else (metadata, "")
             )
-            headers = "]\n  - :green[".join(headers.split(": ")[1].split(">>>"))
+            headers = "]\n  - :green[".join(headers.split(": ", 1)[1].split(">>>"))
             paragraphs = f"Paragraphs: {', '.join(map(str, result.text.paragraphs))}"
             paragraphs = re.sub(r"\b\d+\b", ":blue[\\g<0>]", paragraphs)
             metadata_repr = f"- {source}\n  - :green[{headers}]\n- {paragraphs}"
