@@ -57,8 +57,7 @@ def execute_search(query: str) -> list["QueryResult"]:
 
 float_init()
 
-theme = get_theme()
-"""Theme object to be used in the app."""
+theme = get_theme(key="main_theme")
 
 with custom_css_container(
     key="top_search_bar",
@@ -73,6 +72,8 @@ with custom_css_container(
         }}
     """,
 ):
+    float_parent()
+
     st_keyup(
         "Logos Search",
         placeholder="What would you like to ask?",
@@ -91,15 +92,14 @@ with custom_css_container(
             label_visibility="collapsed",
             clearable=True,
         )
+
     if LogosState.query:
         search_result = execute_search(LogosState.query)
         paginated = Paginate(search_result, key="search_results")
         with col_pages, custom_css_container("pg_container", "{margin-top: -5px;}"):
             LogosState.current_page = paginated.incremental(*st.columns((2, 2.5, 2)))
 
-    float_parent()
-
-add_vertical_space(4)
+add_vertical_space(7)
 
 # Avoid re-running the code block if the query is the same
 if LogosState.query:

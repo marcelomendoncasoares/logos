@@ -51,10 +51,12 @@ class ThemeModel(BaseModel):
         return self.base.lower() == "light"
 
 
-def get_theme() -> ThemeModel:
+def get_theme(key: str | None = None) -> ThemeModel:
     """
     Get the theme object to be used in the app.
     """
-    while (theme := st_theme()) is None:
+    # TODO: Add a timeout to this function.
+    theme = st_theme(key=key)
+    while theme is None:
         sleep(0.1)
     return ThemeModel(**theme)
