@@ -67,7 +67,7 @@ with custom_css_container(
             background-color: {theme.backgroundColor};
             padding-top: 20px;
             padding-bottom: 10px;
-            border-bottom: 1px solid #9f1117;
+            border-bottom: 1px solid {theme.primaryColor}a0;
             box-shadow: 0 10px 20px -2px {theme.backgroundColor};
         }}
     """,
