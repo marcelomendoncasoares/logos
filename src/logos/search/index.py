@@ -3,33 +3,14 @@ Search functions for the index.
 
 """
 
-import json
-
-from typing import Type, TypeVar
-
 from logos.data.index import get_or_create_index
 from logos.entities.query import QueryResult
 from logos.entities.text import TextChunk
 from logos.search.rerank import rerank_results
 
 
-ReturnType = TypeVar("ReturnType", bound=QueryResult | TextChunk)
-
-
-def _convert_result(data: dict, cls: Type[ReturnType]) -> ReturnType:
-    """
-    Convert a result of an Embedding query to a QueryResult.
-    """
-    data["text"] = json.loads(data.pop("data"))
-    data["text"]["id"] = data.pop("id")
-    if cls is TextChunk:
-        data = data["text"]
-    return cls(**data)
-
-
 def search_index(
-    similarity_query: str,
-    min_score: float = 0.0,
+    query: str,
     *,
     rerank: bool = True,
     limit: int | None = None,
@@ -38,39 +19,21 @@ def search_index(
     Search the index with a query.
 
     Args:
-        similarity_query: Similarity query to search for.
-        min_score: Minimum score to consider.
+        query: Similarity query to search for.
         rerank: Whether to rerank the results.
         limit: Maximum number of results to return.
 
     Returns:
         List of text chunks.
     """
-    results: list[dict] = get_or_create_index().search(
-        query="""
-            select id, data, score
-            from txtai
-            where similar(:query) and score > :min_score
-        """,
-        limit=limit,
-        parameters={"query": similarity_query, "min_score": min_score},
+    retriever = get_or_create_index().as_retriever(
+        similarity_top_k=limit,
+        alpha=0.5,  # NOTE: only for hybrid search (0 for bm25, 1 for vector search)
     )
-    query_results = [_convert_result(data, QueryResult) for data in results]
+    query_results = [
+        QueryResult(text=TextChunk.from_text_node(r.node), score=r.score)
+        for r in retriever.retrieve(query)
+    ]
     if rerank:
-        return rerank_results(query=similarity_query, results=query_results)
+        return rerank_results(query=query, results=query_results)
     return query_results
-
-
-def get_items_by_id(*ids: str) -> list[TextChunk]:
-    """
-    Get items by their IDs.
-    """
-    items: list[dict] = get_or_create_index().search(
-        query="""
-            select id, data
-            from txtai
-            where id in (:ids_list)
-        """,
-        parameters={"ids_list": f"""'{"','".join(ids)}'"""},
-    )
-    return [_convert_result(data, TextChunk) for data in items]

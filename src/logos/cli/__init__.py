@@ -59,7 +59,6 @@ def index(  # noqa: PLR0913
     from logos.config import Config
     from logos.data.extract import load_documents, parse_documents_into_nodes
     from logos.data.index import delete_index, get_or_create_index, index_documents
-    from logos.entities.text import TextChunk
 
     paths = [
         rp
@@ -86,8 +85,7 @@ def index(  # noqa: PLR0913
     print("Starting index process...")
     documents = load_documents(input_files=paths)
     nodes = parse_documents_into_nodes(documents)
-    text_chunks = TextChunk.from_text_nodes(nodes)
-    index_documents(text_chunks if not limit else text_chunks[:limit])
+    index_documents(nodes if not limit else nodes[:limit])
     print("[bold green]All nodes indexed with success.\n")
 
 
@@ -107,13 +105,12 @@ def delete(*, yes: bool = False) -> None:
 
 
 @app.command()
-def search(query: str, min_score: float = 0.0, limit: Optional[int] = None) -> None:
+def search(query: str, limit: Optional[int] = None) -> None:
     """
     Search for text in the index.
 
     Args:
         query: Text to search for.
-        min_score: Minimum score to consider.
         limit: Maximum number of results to return.
     """
     print("\n[bold]Initializing...[/bold]")
@@ -122,7 +119,7 @@ def search(query: str, min_score: float = 0.0, limit: Optional[int] = None) -> N
     from logos.search.index import search_index
 
     print(f"\nResults for query: [yellow]'{query}'\n")
-    for result in search_index(query, min_score=min_score, limit=limit):
+    for result in search_index(query, limit=limit):
         print(f"[gray]{'-'*80}")
         print(f"Score: [yellow]{result.score:.4f}")
         metadata, text = result.text.embed_text.split("\n\n", 1)
