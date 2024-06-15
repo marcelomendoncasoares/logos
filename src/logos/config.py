@@ -31,6 +31,6 @@ class Config:
 
     MODEL_INSTRUCTIONS = ModelInstructionsConfig(
         query="query: ",
-        data="data: ",
+        data="passage: ",
     )
     """Instructions for the default model to prepend queries and texts."""
