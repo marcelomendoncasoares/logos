@@ -4,6 +4,7 @@ Text entity.
 """
 
 from typing import Any, Self
+from uuid import NAMESPACE_DNS, uuid5
 
 from llama_index.schema import TextNode
 from pydantic import BaseModel
@@ -67,6 +68,30 @@ class TextChunk(BaseModel):
                 "paragraphs": self.paragraphs,
             },
         )
+
+    @classmethod
+    def split(cls, chunk: Self) -> list[Self]:
+        """
+        Split a text into multiple chunks by keeping only one paragraph per chunk.
+        """
+        text_splits = [
+            (str(uuid5(NAMESPACE_DNS, text)), text)
+            for text in ParagraphReference.split(chunk.text)
+        ]
+
+        last_split_i = len(text_splits) - 1
+        return [
+            cls(
+                id=text_id,
+                text=text,
+                source=chunk.source,
+                headers=chunk.headers,
+                paragraphs=ParagraphReference.extract_all(text),
+                prev_id=chunk.prev_id if i == 0 else text_splits[i - 1][0],
+                next_id=chunk.next_id if i == last_split_i else text_splits[i + 1][0],
+            )
+            for i, (text_id, text) in enumerate(text_splits)
+        ]
 
     @property
     def embed_text(self) -> str:

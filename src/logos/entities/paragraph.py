@@ -67,6 +67,23 @@ class ParagraphReference(BaseModel):
         """
         return re.match(REFERENCE_REGEX, text) is not None
 
+    @classmethod
+    def split(cls, text: str) -> list[str]:
+        """
+        Split a text into all paragraphs that start with a paragraph reference.
+        """
+        result = [text]
+        for m in re.finditer(REFERENCE_REGEX, result[-1]):
+            split_pos = m.start() - 1
+            if split_pos == 0:
+                continue
+            result.append(result[-1][split_pos:].strip())
+            result[-2] = result[-2][:split_pos].strip()
+        return result
+
+    def __hash__(self) -> int:
+        return hash(str(self))
+
     def __str__(self) -> str:
         if self.page_num is None:
             return f"§ {self.paragraph}"
