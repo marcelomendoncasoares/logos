@@ -47,6 +47,27 @@ class TextChunk(BaseModel):
             next_id=node.next_node.node_id if node.next_node else None,
         )
 
+    @classmethod
+    def from_text_nodes(cls, nodes: list[TextNode]) -> list[Self]:
+        """
+        Create TextChunks from a list of LLama-Index TextNodes.
+        """
+        return [cls.from_text_node(node) for node in nodes]
+
+    def to_simple_text_node(self) -> TextNode:
+        """
+        Convert the TextChunk to a simple TextNode.
+        """
+        return TextNode(
+            id_=self.id,
+            text=self.embed_text,
+            metadata={
+                "source": self.source,
+                "headers": self.headers,
+                "paragraphs": self.paragraphs,
+            },
+        )
+
     @property
     def embed_text(self) -> str:
         """

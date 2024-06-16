@@ -12,7 +12,6 @@ from llama_index.schema import Document, MetadataMode, NodeRelationship, TextNod
 
 from logos.entities.paragraph import ParagraphReference
 from logos.entities.source import Source
-from logos.entities.text import TextChunk
 
 
 def load_documents(
@@ -145,10 +144,3 @@ def parse_documents_into_nodes(documents: list[Document]) -> list[TextNode]:
     # of paragraphs, which is currently not assured during the extraction.
 
     return nodes
-
-
-def parse_nodes_into_text_chunks(nodes: list[TextNode]) -> list[TextChunk]:
-    """
-    Parse text nodes into text chunks.
-    """
-    return [TextChunk.from_text_node(node) for node in nodes]

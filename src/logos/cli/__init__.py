@@ -57,12 +57,9 @@ def index(  # noqa: PLR0913
     print("\n[bold]Initializing...[/bold]")
 
     from logos.config import Config
-    from logos.data.extract import (
-        load_documents,
-        parse_documents_into_nodes,
-        parse_nodes_into_text_chunks,
-    )
+    from logos.data.extract import load_documents, parse_documents_into_nodes
     from logos.data.index import delete_index, get_or_create_index, index_documents
+    from logos.entities.text import TextChunk
 
     paths = [
         rp
@@ -89,7 +86,7 @@ def index(  # noqa: PLR0913
     print("Starting index process...")
     documents = load_documents(input_files=paths)
     nodes = parse_documents_into_nodes(documents)
-    text_chunks = parse_nodes_into_text_chunks(nodes)
+    text_chunks = TextChunk.from_text_nodes(nodes)
     index_documents(text_chunks if not limit else text_chunks[:limit])
     print("[bold green]All nodes indexed with success.\n")
 

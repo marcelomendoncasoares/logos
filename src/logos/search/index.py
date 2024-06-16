@@ -10,6 +10,7 @@ from typing import Type, TypeVar
 from logos.data.index import get_or_create_index
 from logos.entities.query import QueryResult
 from logos.entities.text import TextChunk
+from logos.search.rerank import rerank_results
 
 
 ReturnType = TypeVar("ReturnType", bound=QueryResult | TextChunk)
@@ -29,6 +30,8 @@ def _convert_result(data: dict, cls: Type[ReturnType]) -> ReturnType:
 def search_index(
     similarity_query: str,
     min_score: float = 0.0,
+    *,
+    rerank: bool = True,
     limit: int | None = None,
 ) -> list[QueryResult]:
     """
@@ -37,6 +40,7 @@ def search_index(
     Args:
         similarity_query: Similarity query to search for.
         min_score: Minimum score to consider.
+        rerank: Whether to rerank the results.
         limit: Maximum number of results to return.
 
     Returns:
@@ -51,7 +55,10 @@ def search_index(
         limit=limit,
         parameters={"query": similarity_query, "min_score": min_score},
     )
-    return [_convert_result(data, QueryResult) for data in results]
+    query_results = [_convert_result(data, QueryResult) for data in results]
+    if rerank:
+        return rerank_results(query=similarity_query, results=query_results)
+    return query_results
 
 
 def get_items_by_id(*ids: str) -> list[TextChunk]:
