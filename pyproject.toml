@@ -12,9 +12,11 @@ logos = "logos.cli:app"
 [tool.poetry.dependencies]
 python = "^3.11"
 accelerate = "^0.25.0"  # To enable PyTorch code to run across distributed configuration
+aiosqlite = "^0.20.0"
 einops = "^0.7.0"  # Improve tensor operations
 llama-index = "^0.9.15.post2"
 pydantic = "^2.7.1"
+sqlalchemy = {extras = ["asyncio"], version = "^2.0.30"}
 txtai = {extras = ["database", "graph"], version = "^7.1.0"}
 typer = "^0.9.0"
 pre-commit = "^3.7.1"
@@ -40,6 +42,8 @@ ruff = "^0.4.5"
 [tool.ruff.lint]
 select = ["ALL"]
 ignore = [
+    "ANN002",  # Missing type annotation for `*args`
+    "ANN003",  # Missing type annotation for `**kwargs`
     "ANN101",  # Missing type annotation for `self` in method
     "ANN102",  # Missing annotation for cls
     "ANN401",  # Dynamically typed expressions (typing.Any) are disallowed in `__context`
@@ -56,9 +60,11 @@ ignore = [
     "EM101",   # Exception must not use a string literal, assign to variable first
     "EM102",   # Exception must not use an f-string literal, assign to variable first
     "FA100",   # Add `from __future__ import annotations` to simplify `typing.Optional`
+    "FIX001",  # Line contains FIXME, consider resolving the issue
     "FIX002",  # Line contains TODO, consider resolving the issue
     "PTH201",  # Do not pass the current directory explicitly to `Path`
     "SIM118",  # Use `key in dict` instead of `key in dict.keys()`
+    "TD001",   # Invalid TODO tag: `FIXME`
     "TD002",   # Missing author in TODO
     "TD003",   # Missing issue link on the line following this TODO
     "TRY003",  # Avoid specifying long messages outside the exception class
