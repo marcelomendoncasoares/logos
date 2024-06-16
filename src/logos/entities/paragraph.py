@@ -81,6 +81,40 @@ class ParagraphReference(BaseModel):
             result[-2] = result[-2][:split_pos].strip()
         return result
 
+    @classmethod
+    def regroup(cls, texts: list[str]) -> list[tuple[str, Self]]:
+        """
+        Regroup a list of texts unifying all that belong to a single paragraph
+        reference and splitting others that contain multiple references.
+
+        Args:
+            texts: List of texts to regroup.
+
+        Returns:
+            List of tuples with the regrouped text and the paragraph reference.
+        """
+        single_text = "\n\n".join(texts)
+        split_texts = cls.split(single_text)
+
+        non_unique_tuples = [
+            (text, cls(**m.groupdict()))
+            for text, m in zip(split_texts, re.finditer(REFERENCE_REGEX, single_text))
+        ]
+
+        unique_paragraphs = {r[1] for r in non_unique_tuples}
+
+        return [
+            (
+                re.sub(
+                    r"\[\.{3}\]\n\n" + REFERENCE_REGEX + r"\[\.{3}\] ",
+                    "",
+                    "\n\n".join(t for t, ref in non_unique_tuples if ref == paragraph),
+                ),
+                paragraph,
+            )
+            for paragraph in unique_paragraphs
+        ]
+
     def __hash__(self) -> int:
         return hash(str(self))
 

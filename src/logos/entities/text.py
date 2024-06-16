@@ -93,6 +93,37 @@ class TextChunk(BaseModel):
             for i, (text_id, text) in enumerate(text_splits)
         ]
 
+    @classmethod
+    def regroup(cls, chunks: list[Self]) -> list[Self]:
+        """
+        Regroup a list of texts unifying all that belong to a single paragraph
+        reference and splitting others that contain multiple references.
+        """
+
+        if len({str(c.source) for c in chunks}) > 1:
+            raise ValueError("Cannot merge chunks from different sources.")
+        if len({str(c.headers) for c in chunks}) > 1:
+            raise ValueError("Cannot merge chunks with different headers.")
+
+        regrouped = [
+            (str(uuid5(NAMESPACE_DNS, text)), text, reference)
+            for text, reference in ParagraphReference.regroup([c.text for c in chunks])
+        ]
+
+        last_i = len(regrouped) - 1
+        return [
+            cls(
+                id=text_id,
+                text=text,
+                source=chunks[0].source,
+                headers=chunks[0].headers,
+                paragraphs=reference,
+                prev_id=chunks[0].prev_id if i == 0 else regrouped[i - 1][0],
+                next_id=chunks[-1].next_id if i == last_i else regrouped[i + 1][0],
+            )
+            for i, (text_id, text, reference) in enumerate(regrouped)
+        ]
+
     @property
     def embed_text(self) -> str:
         """
