@@ -15,10 +15,9 @@ accelerate = "^0.25.0"  # To enable PyTorch code to run across distributed confi
 einops = "^0.7.0"  # Improve tensor operations
 llama-index = "^0.9.15.post2"
 pydantic = "^2.7.1"
+sentence-transformers = "^2.7.0"
 txtai = {extras = ["database", "graph"], version = "^7.1.0"}
 typer = "^0.9.0"
-pre-commit = "^3.7.1"
-sentence-transformers = "^2.7.0"
 
 [tool.poetry.group.app.dependencies]
 st-theme = "^1.2.3"
@@ -34,6 +33,7 @@ docx2txt = "^0.8"
 ipykernel = "^6.29.4"
 ipywidgets = "^8.1.2"
 matplotlib = "^3.9.0"
+pre-commit = "^3.7.1"
 pytest = "^8.2.1"
 ruff = "^0.4.5"
 
