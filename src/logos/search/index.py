@@ -31,7 +31,7 @@ def search_index(
     similarity_query: str,
     min_score: float = 0.0,
     *,
-    rerank: bool = True,
+    rerank: bool = False,
     limit: int | None = None,
 ) -> list[QueryResult]:
     """
